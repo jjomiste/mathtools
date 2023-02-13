@@ -88,9 +88,8 @@ program test_subs
   Do ij=1,size(xnew)
      call splint(x,y,y2,size(x),xnew(ij),yp)
      ynew(ij)=yp
-     write(outexp,*) xnew(ij), ynew(ij)
   End Do
 
-  
+  !! NOW THE FOURIER TRANSFORM
   
 end program test_subs
