@@ -91,5 +91,11 @@ program test_subs
   End Do
 
   !! NOW THE FOURIER TRANSFORM
+
+  call realft(ynew,size(ynew),1)
+
+  Do ij=0,size(ynew)-1
+     write(outexp,*) ij/(size(xnew)*(xnew(2)-xnew(1))*1.e-9), ynew(ij)
+  End Do
   
 end program test_subs
