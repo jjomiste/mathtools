@@ -1,4 +1,6 @@
+expect*
 *.out
 *.mod
 *.o
-*.f90~
+*~
+*.dat

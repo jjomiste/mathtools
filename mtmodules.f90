@@ -7,26 +7,20 @@ module mtmodules
   
   contains
 
-    subroutine lpower2(vec)
+    subroutine lpower2(vec,vecout)
       !! This subroutines expands the length of the vector up to the closest integer which is a power of 2.
-      real(8), allocatable, intent(inout) :: vec(:)
-      real(8), allocatable :: vecaux(:)
+      real(8), allocatable, intent(in) :: vec(:)
+      real(8), allocatable, intent(out) :: vecout(:)
       integer :: ij, jk, newl,newlexp
       
       newlexp=int(log(real(size(vec)))/log(two))+1 !! exponent for the next 2^n
 
       call intpower(2,newlexp, newl)
 
-      allocate(vecaux, source=vec)
+      allocate(vecout(newl))
 
-      deallocate(vec)
-      allocate(vec(newl))
-
-      do ij=1, size(vecaux)
-         vec(ij)=vecaux(ij)
-      end do
+      vecout=zero
       
-      deallocate(vecaux)
       return
     end subroutine lpower2
 
@@ -47,7 +41,6 @@ module mtmodules
 
     SUBROUTINE spline(x,y,n,yp1,ypn,y2)
       !! TAKEN FROM NUMERICAL RECIPES
-      !! NOTE IT IS IN SINGLE PRECISION
 
 !!$Given arrays x(1:n) and y(1:n) containing a tabulated function, i.e., yi = f(xi), with
 !!$x1 < x2 < ::: < xN, and given values yp1 and ypn for the rst derivative of the interpolating
@@ -59,8 +52,10 @@ module mtmodules
 !!$Parameter: NMAX is the largest anticipated value of n.
       
       INTEGER n,NMAX
-      REAL(8) yp1,ypn,x(n),y(n),y2(n)
-      PARAMETER (NMAX=500)
+      REAL(8) :: yp1,ypn
+      REAL(8), allocatable, intent(in) :: x(:),y(:)
+      REAL(8), allocatable, intent(inout) :: y2(:)
+      PARAMETER (NMAX=1500)
       INTEGER i,k
       REAL(8) p,qn,sig,un,u(NMAX)
       if (yp1.gt..99e30) then
@@ -69,13 +64,15 @@ module mtmodules
       else
         y2(1)=-0.5
         u(1)=(3./(x(2)-x(1)))*((y(2)-y(1))/(x(2)-x(1))-yp1)
-      endif
-      do 11 i=2,n-1
+     endif
+
+     do 11 i=2,n-1
         sig=(x(i)-x(i-1))/(x(i+1)-x(i-1))
         p=sig*y2(i-1)+2.
         y2(i)=(sig-1.)/p
         u(i)=(6.*((y(i+1)-y(i))/(x(i+1)-x(i))-(y(i)-y(i-1))/(x(i)-x(i-1)))/(x(i+1)-x(i-1))-sig*u(i-1))/p
-11    continue
+11      continue
+
       if (ypn.gt..99e30) then
         qn=0.
         un=0.
