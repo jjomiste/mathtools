@@ -4,7 +4,7 @@ program test_subs
   implicit none
   real(8), allocatable :: x(:),y(:), xy(:), y2(:)
   real(8), allocatable :: xnew(:), ynew(:)
-  real(8) :: xp, yp
+  real(8) :: xp, yp, delta
   character(len=100) :: nombre
   character(len=2) :: columnach
   character(len=1) :: auxch
@@ -94,8 +94,10 @@ program test_subs
 
   call realft(ynew,size(ynew),1)
 
+  delta=(xnew(2)-xnew(1))*1.d-9 !! in seconds
+  
   Do ij=0,size(ynew)-1
-     write(outexp,*) ij/(size(xnew)*(xnew(2)-xnew(1))*1.e-9), ynew(ij)
+     write(outexp,*) ij/(size(xnew)*delta), ynew(ij)*delta
   End Do
   
 end program test_subs
