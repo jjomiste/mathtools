@@ -152,7 +152,9 @@ program fftcode
     Do ij=0,size(ynew)-1
        xnew(ij+1)=ij/(size(xnew)*delta)
     End Do
-    
+
+    write(outexp,*) '# f (Hz)     FFT'
+    write(outexp,*) '# '
   Do ij=1,size(ynew)
      write(outexp,*) xnew(ij), ynew(ij)
   End Do
