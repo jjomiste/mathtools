@@ -153,14 +153,14 @@ program fftcode
     Do ij=0,size(ynew)-1
        xnew(ij+1)=ij/(size(xnew)*delta)
     End Do
-
-    write(outexp,*) '# f (Hz)     FFT'
+    
+    write(outexp,*) '# f (Hz) omega(2*pi*f)    FFT (Re)    FFT (Im)    |FFT|^2'
     write(outexp,*) '# '
 
     call realft2realimag(ynew,refft,imfft)
 
     Do ij=1, size(refft)
-       write(outexp,*) xnew(ij), refft(ij), imfft(ij), refft(ij)**2.0d0+imfft(ij)**2.0d0
+       write(outexp,*) xnew(ij), xnew(ij)*2*acos(-1.0d0), refft(ij), imfft(ij), refft(ij)**2.0d0+imfft(ij)**2.0d0
     End Do
 
 
