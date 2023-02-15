@@ -234,16 +234,19 @@ module mtmodules
 !!  (C) Copr. 1986-92 Numerical Recipes Software ]k1">"@w.
 
       !! This subroutine gives the real and the imaginary part of the
-      !! Fourier Transform coming from realft
+      !! Fourier Transform coming from realft. FFT is normalized to unity.
       subroutine realft2realimag(realftinput,re,imag)
         implicit none
         real(8), allocatable, intent(in) :: realftinput(:)
         real(8), allocatable, intent(out) :: re(:), imag(:)
         integer :: dimft, ij, ik, jk
+        real(8), allocatable :: fft2(:)
+        real(8) :: maxfft2
 
         allocate(re(1:size(realftinput)/2))
         re=0.0d0
         allocate(imag,source=re)
+        allocate(fft2, source=re)
 
         dimft=size(re)
         
@@ -254,6 +257,13 @@ module mtmodules
            re(ij)=realftinput(2*ij-1)
            imag(ij)=realftinput(2*ij)
         End Do
+
+        fft2=sqrt(re**2.0d0+imag**2.0d0)
+
+        maxfft2=maxval(fft2)
+        
+        re=re/maxfft2
+        imag=imag/maxfft2
         
         return
       end subroutine realft2realimag

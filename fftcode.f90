@@ -158,7 +158,7 @@ program fftcode
     write(outexp,*) '# '
 
     call realft2realimag(ynew,refft,imfft)
-
+    
     Do ij=1, size(refft)
        write(outexp,*) xnew(ij), xnew(ij)*2*acos(-1.0d0), refft(ij), imfft(ij), refft(ij)**2.0d0+imfft(ij)**2.0d0
     End Do
