@@ -4,6 +4,7 @@ program fftcode
   implicit none
   real(8), allocatable :: x(:),y(:), xy(:), y2(:)
   real(8), allocatable :: xnew(:), ynew(:)
+  real(8), allocatable :: refft(:), imfft(:)
   real(8), allocatable :: xaux(:), yaux(:)
   real(8) :: xp, yp, delta
   real(8) :: tinicial !! Starting point for the FFT
@@ -155,8 +156,13 @@ program fftcode
 
     write(outexp,*) '# f (Hz)     FFT'
     write(outexp,*) '# '
-  Do ij=1,size(ynew)
-     write(outexp,*) xnew(ij), ynew(ij)
-  End Do
-  
+
+    call realft2realimag(ynew,refft,imfft)
+
+    Do ij=1, size(refft)
+       write(outexp,*) xnew(ij), refft(ij), imfft(ij), refft(ij)**2.0d0+imfft(ij)**2.0d0
+    End Do
+
+
+    
 end program fftcode

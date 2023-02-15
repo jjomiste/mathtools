@@ -177,7 +177,7 @@ module mtmodules
       END
 !C  (C) Copr. 1986-92 Numerical Recipes Software ]k1">"@w.
     
-    !! REAL FOURIER TRANSFORM
+    !! FOURIER TRANSFORM OF A REAL FUNCTION
     
           SUBROUTINE realft(data,n,isign)
       INTEGER isign,n
@@ -233,6 +233,30 @@ module mtmodules
       END
 !!  (C) Copr. 1986-92 Numerical Recipes Software ]k1">"@w.
 
+      !! This subroutine gives the real and the imaginary part of the
+      !! Fourier Transform coming from realft
+      subroutine realft2realimag(realftinput,re,imag)
+        implicit none
+        real(8), allocatable, intent(in) :: realftinput(:)
+        real(8), allocatable, intent(out) :: re(:), imag(:)
+        integer :: dimft, ij, ik, jk
+
+        allocate(re(1:size(realftinput)/2))
+        re=0.0d0
+        allocate(imag,source=re)
+
+        dimft=size(re)
         
-    
+        re(1)=realftinput(1)
+        re(dimft)=realftinput(2)
+
+        Do ij=2,dimft
+           re(ij)=realftinput(2*ij-1)
+           imag(ij)=realftinput(2*ij)
+        End Do
+        
+        return
+      end subroutine realft2realimag
+      
+      
 end module mtmodules
