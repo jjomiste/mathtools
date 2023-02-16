@@ -1,7 +1,7 @@
 .SUFFIXES : .o .f90
-.f90.o: ; gfortran -c $<
+.f90.o: ;  gfortran -c $<
 
-fft: mtmodules.o fftcode.o
+fft:: mtmodules.o fftcode.o
 	gfortran  mtmodules.o fftcode.o -o $@
 
 clean::
@@ -9,4 +9,4 @@ clean::
 	rm -f *.mod
 	rm -f fft
 
-all::	fft
+all:: fft
