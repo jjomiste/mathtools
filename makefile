@@ -8,3 +8,5 @@ clean::
 	rm -f *.o
 	rm -f *.mod
 	rm -f fft
+
+all::	fft
