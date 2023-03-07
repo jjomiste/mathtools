@@ -45,6 +45,7 @@ program fftcode
   write(outexp,*) '# t0: ', tinicial
   write(*,*)
 
+  
   open(newunit=nexp,file=trim(nombre)) !! open the file
 
   !! READ THE FILE
@@ -55,15 +56,16 @@ program fftcode
   
   Do     
      read(nexp,*,iostat=stat) auxch
-     if (auxch.ne.'#'.and.lcabecera.lt.0) lcabecera=ij !! heading lines
+     if (auxch.ne.'#'.and.lcabecera.lt.0) lcabecera=ij !! heading lines     
      if (stat.ne.0) then !! total lines
         stat=0
         ltotales=ij
         exit
      end if
-     ij=ij+1 !! set the lines
+     ij=ij+1 !! set the lines     
   End Do
-
+  
+  
   write(outexp,*) '# Lines in heading removed: ', lcabecera
   
   rewind(nexp) !! BEGINNING OF THE FILE
@@ -87,31 +89,30 @@ program fftcode
   Do ij=1,ltotales-lcabecera
      read(nexp,*) xy(1:columna)
      if (xy(1).lt.tinicial) cycle
-     ik=ik+1 !! number of valid points
-     x(ik)=xy(1)
-     y(ik)=xy(columna)
+     x(ij)=xy(1)
+     y(ij)=xy(columna)
   End Do
   close(nexp)
   deallocate(xy)
 
-  write(outexp,*) '# Number of data points: ', ik
-  !! Resize the data points
-  allocate(xaux, source=x)
-  allocate(yaux, source=y)
-
-  deallocate(x)
-  deallocate(y)
-  allocate(x(1:ik), y(1:ik))
-  x=0.0d0
-  y=0.0d0
-
-  do ij=1,ik
-     x(ij)=xaux(ij)
-     y(ij)=yaux(ij)
-  end do
-  
-  deallocate(xaux)
-  deallocate(yaux)
+  write(outexp,*) '# Number of data points: ', size(x)
+!!$  !! Resize the data points
+!!$  allocate(xaux, source=x)
+!!$  allocate(yaux, source=y)
+!!$
+!!$  deallocate(x)
+!!$  deallocate(y)
+!!$  allocate(x(1:size(xaux)), y(1:size(yaux)))
+!!$  x=0.0d0
+!!$  y=0.0d0
+!!$
+!!$  do ij=1,size(x)
+!!$     x(ij)=xaux(ij)
+!!$     y(ij)=yaux(ij)
+!!$  end do
+!!$  
+!!$  deallocate(xaux)
+!!$  deallocate(yaux)
   !! END of resizing the data
   !! Now the signal is in x and y
   !! Now we construct the splines
@@ -126,6 +127,7 @@ program fftcode
 
   !! SET A NEW ARRAY WITH THE DIMENSION 2^N, LARGER THAN THE CURRENT ONE
   !! SET THE X ARRAY
+
   call lpower2(x,xnew)
 
   xnew(1)=x(1)
