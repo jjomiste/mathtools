@@ -76,7 +76,6 @@ program fftcode
      read(nexp,*) auxch
   End Do
 
-  
   !!READ THE SIGNAL FROM THE FILE
   allocate(x(1:ltotales-lcabecera))
   allocate(y(1:ltotales-lcabecera))
@@ -89,33 +88,36 @@ program fftcode
   Do ij=1,ltotales-lcabecera
      read(nexp,*) xy(1:columna)
      if (xy(1).lt.tinicial) cycle
+     ik=ik+1 !! number of valid points
      x(ij)=xy(1)
      y(ij)=xy(columna)
   End Do
   close(nexp)
   deallocate(xy)
 
+ !! Resize the data points
+  allocate(xaux, source=x)
+  allocate(yaux, source=y)
+
+ deallocate(x)
+ deallocate(y)
+ allocate(x(1:ik), y(1:ik))
+
   write(outexp,*) '# Number of data points: ', size(x)
-!!$  !! Resize the data points
-!!$  allocate(xaux, source=x)
-!!$  allocate(yaux, source=y)
-!!$
-!!$  deallocate(x)
-!!$  deallocate(y)
-!!$  allocate(x(1:size(xaux)), y(1:size(yaux)))
-!!$  x=0.0d0
-!!$  y=0.0d0
-!!$
-!!$  do ij=1,size(x)
-!!$     x(ij)=xaux(ij)
-!!$     y(ij)=yaux(ij)
-!!$  end do
-!!$  
-!!$  deallocate(xaux)
-!!$  deallocate(yaux)
+ 
+  x=0.0d0
+  y=0.0d0
+
+  do ij=1,size(x)
+     x(ij)=xaux(ij+ltotales-lcabecera-size(x))
+     y(ij)=yaux(ij+ltotales-lcabecera-size(x))
+  end do
+  
+  deallocate(xaux)
+  deallocate(yaux)
   !! END of resizing the data
   !! Now the signal is in x and y
-  !! Now we construct the splines
+   !! Now we construct the splines
 
   allocate(y2(1:size(y)))
   y2=0.d0
