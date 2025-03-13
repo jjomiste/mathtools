@@ -27,7 +27,7 @@ program fftcode
      write(*,*)
      stop
   else
-     write(outexp,*) '# FFT of a signal given as a function of time in nanoseconds'
+     write(outexp,*) '# FFT of a signal given as a function of time'
   end if
   
   call getarg(1,nombre) !! file with the
@@ -40,7 +40,7 @@ program fftcode
   read(*,*) columna
   write(*,*)
   write(outexp,*) '# Column transformed: ', columna
-  write(*,*) 'Starting time for the FFT (ns)?'
+  write(*,*) 'Starting time for the FFT?'
   read(*,*) tinicial
   write(outexp,*) '# t0: ', tinicial
   write(*,*)
@@ -152,13 +152,14 @@ program fftcode
   !! FIRST THE DISCRETE FOURIER TRANSFORM
   call realft(ynew,size(ynew),1)
   !! THEN THE FOURIER TRANSFORM
-    delta=(xnew(2)-xnew(1))*1.d-9 !! in seconds
+    delta=(xnew(2)-xnew(1))!! in seconds
     ynew=ynew*delta
     Do ij=0,size(ynew)-1
        xnew(ij+1)=ij/(size(xnew)*delta)
     End Do
-    
-    write(outexp,*) '# f (Hz) omega(2*pi*f)    FFT (Re)    FFT (Im)    |FFT|^2'
+
+    write(outexp,*) '# Note that the frequency units are the inverse of the input'
+    write(outexp,*) '# f omega(2*pi*f)    FFT (Re)    FFT (Im)    |FFT|^2'
     write(outexp,*) '# '
 
     call realft2realimag(ynew,refft,imfft)
