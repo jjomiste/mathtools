@@ -159,15 +159,13 @@ program fftcode
     End Do
 
     write(outexp,*) '# Note that the frequency units are the inverse of the input'
-    write(outexp,*) '# f omega(2*pi*f)    FFT (Re)    FFT (Im)    |FFT|^2'
+    write(outexp,'(A2, A15, 4A17)') ' #',  'f', 'omega(2*pi*f)',    'Re(FFT)',    'Im(FFT)',    '|FFT|^2'
     write(outexp,*) '# '
 
     call realft2realimag(ynew,refft,imfft)
     
     Do ij=1, size(refft)
-       write(outexp,*) xnew(ij), xnew(ij)*2*acos(-1.0d0), refft(ij), imfft(ij), refft(ij)**2.0d0+imfft(ij)**2.0d0
+       write(outexp,'(5E17.5)') xnew(ij), xnew(ij)*2*acos(-1.0d0), refft(ij), imfft(ij), refft(ij)**2.0d0+imfft(ij)**2.0d0
     End Do
-
-
     
 end program fftcode
