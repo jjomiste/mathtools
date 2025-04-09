@@ -7,10 +7,14 @@ fft:: mtmodules.o fftcode.o
 wigner:: mtmodules.o wignercode.o
 	gfortran  mtmodules.o wignercode.o -o $@
 
+dir::
+	mkdir bin
+	mv fft bin
+	mv wigner bin
+
 clean::
 	rm -f *.o
 	rm -f *.mod
-	rm -f fft
-	rm -f wigner
+	rm -rf bin
 
-all:: fft wigner
+all:: fft wigner dir

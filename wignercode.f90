@@ -158,7 +158,7 @@ contains
     
     do k = 0, Ny
       y = y_min + k * dy
-      integral = integral + psi_gaussian(x + y) * psi_gaussian(x - y) * cos(-2.0d0 * p * y) * dy
+!!$      integral = integral + psi_gaussian(x + y) * psi_gaussian(x - y) * cos(-2.0d0 * p * y) * dy
     end do
     
     W = integral / acos(-1.0d0)
