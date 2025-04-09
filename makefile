@@ -7,7 +7,7 @@ fft:: mtmodules.o fftcode.o
 wigner:: mtmodules.o wignercode.o
 	gfortran  mtmodules.o wignercode.o -o $@
 
-dir::
+dir:: 
 	mkdir bin
 	mv fft bin
 	mv wigner bin

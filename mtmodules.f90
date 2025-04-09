@@ -1,6 +1,6 @@
 module mtmodules
   implicit none
-  real(8), parameter :: two=2.0d0, zero=0.0d0, pi=acos(-1.0d0)
+  real(8), parameter :: two=2.0d0, zero=0.0d0, pi=acos(-1.0d0), half=dble(0.5d0)
 
   private :: two, zero,pi
   public
@@ -270,51 +270,62 @@ module mtmodules
 
 !!! WIGNER TRANSFORM SUBROUTINES
 
-      subroutine wigner(x,ff,p,w) !! compute the Wigner transformation of a real function ff
+      subroutine wignert(x,ff,psteps,outfile,p) !! compute the Wigner transformation of a real function ff
         !!INPUT
         !!ff is a function of x
         real(8), allocatable, intent(in) :: x(:), ff(:)
+        integer :: psteps !! number of frequencies
+        integer :: outfile !! output file to write on
         !!OUTPUT
         !! p is the grid in p
         !! w is the wigner transform in the grid x,p
-        real(8), allocatable, intent(inout) ::  p(:), w(:,:)
+        real(8), allocatable, intent(inout) ::  p(:)
         !! AUXILIAR
         real(8) :: dx, dp,y,integral
         integer:: nn !! number of grid points
         integer:: ij, jk,ik
 
-        allocate(w(1:nn,1:nn))
-        w=zero
         
         !! setting the grid in x
         nn=size(x)
-        dx=(x(nn)-x(1))/dble(nn)
+        dx=x(2)-x(1)
 
         !! setting the grid in p
-        allocate(p(1:nn))
+        allocate(p(1:psteps))
         p=zero
-        p(1)=2*pi/(x(nn)-x(1))
-        p(nn)=2*pi/dx
-        dp=(p(nn)-p(1))/dble(nn)
+        p(1)=zero
+        p(psteps)=two*pi/dx
+        dp=(p(psteps)-p(1))/(psteps-1)
 
-        do ij = 2, nn
+        do ij = 2, psteps
            p(ij) = p(1) + (ij - 1) * dp
         end do
 
         !! computing the integral
 
-        do ik=1,nn !! Running in p
+        do ik=1,psteps !! Running in p
            do ij=1, nn !! Running in x
-              do jk = ij+1, nn-ij !! Integration in y
-                 y = x(1) + (jk-1) * dx
-                 integral = integral + ff(ij+jk) * ff(ij-jk) * cos(-two * p(ik) * y) * dx !!NOT DONE YET
+              integral=zero
+              do jk = 0,min(ij+1,nn-ij) !! Integration over y.
+                 !! at each step y=jk*dx
+                 !! ff(ij+jk) runs over x(ij)+jk*dx
+                 !! ff(ij-jk) runs over x(ij)-jk*dx
+                 y=jk*dx
+                 integral = integral + ff(ij+jk) * ff(ij-jk) * cos(-two * p(ik) * y) * dx
               end do
-              w(ij,ik)=integral
+              integral=integral/pi
+              write(outfile,*) p(ik)*half/pi,x(ij),integral
+              
            end do
+           write(*,*) dble(ik)/dble(psteps)*100, '% done...'
+           write(outfile,*) ''
+           !! now we print out the result
+
         end do
-    
+
+        write(*,*) 'Wigner transform computed!'
         
         return
-      end subroutine wigner
+      end subroutine wignert
       
 end module mtmodules

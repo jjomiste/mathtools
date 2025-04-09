@@ -103,7 +103,12 @@ program wigner_transform
   write(outexp,*) '# Lines in heading removed: ', lcabecera
   write(outexp,*) '# Number of data points: ', size(x)
 
-  print*, x(1), x(size(x)),dt
+  write(outexp,*) '#frequency  time  Wigner Transform'
+  write(outexp,*)
+  
+  call wignert(x,y,10000,outexp,p_vals)
+
+  
   stop
 
   !!Arrange the limits for x and p
