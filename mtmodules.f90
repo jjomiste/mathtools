@@ -2,8 +2,9 @@ module mtmodules
   implicit none
   real(8), parameter :: two=2.0d0, zero=0.0d0, pi=acos(-1.0d0), half=dble(0.5d0)
 
-  private :: two, zero,pi
-  public
+  public::   two, zero,pi
+
+
   
   contains
 
@@ -268,6 +269,53 @@ module mtmodules
         return
       end subroutine realft2realimag
 
+!!! DISCRETE FOURIER TRANSFORM
+
+subroutine compute_dft(t, f, omega, F_re, F_im)
+  implicit none
+  ! Input
+  real(8), allocatable, intent(in) :: t(:), f(:)
+
+  ! Output
+  real(8),allocatable, intent(out) :: F_re(:), F_im(:),omega(:)
+
+  ! Internal variables
+  integer :: k, j,n
+  real(8) :: dt, arg
+  
+
+  ! Assume uniform spacing
+  dt = t(2) - t(1)
+
+  n=size(t)
+
+  allocate(F_re(1:n))
+  allocate(F_im(1:n))
+  allocate(omega(1:n))
+  F_re=zero
+  F_im=zero
+  omega=zero
+  
+  ! Loop over frequencies
+  do k = 1, n
+    omega(k) = two * pi * dble(k - 1) / (n * dt)
+
+    ! Sum over time samples
+    do j = 1, n
+      arg = omega(k) * t(j)
+      F_re(k) = F_re(k) + f(j) * cos(arg)
+      F_im(k) = F_im(k) - f(j) * sin(arg)
+    end do
+  end do
+
+  !! Include the differential and the 1/sqrt(2pi)
+  
+  F_re=F_re*dt/sqrt(two*pi)
+  F_im=F_im*dt/sqrt(two*pi)
+  
+end subroutine compute_dft
+      
+      
 !!! WIGNER TRANSFORM SUBROUTINES
 
       subroutine wignert(x,ff,psteps,outfile,p) !! compute the Wigner transformation of a real function ff
@@ -334,24 +382,20 @@ module mtmodules
 
       !! READING TWO LISTS OF NUMBERS
 
-      subroutine reading2list(inpfile,colx,coly,x,y,outfile,ifile)
+      subroutine reading2list(inpfile,colx,coly,x,y)
         !!INPUT
         !! inpfile: name of the input file
         !! colx: column for the x values
         !! coly: column for the y values
-        !! outfile: output file to store the result (wigner, fft, dft)
         !! OUTPUT:
         !! x: array with the x values starting in label 1
         !! y: array with the y values starting in label 1
-        !! ifile: label of the outfile.
         implicit none
         !!INPUT
         character(len=*), intent(in) :: inpfile
         integer, intent(in) :: colx, coly
-        character(len=*), intent(in) :: outfile
         !!OUTPUT
         real(8), allocatable, intent(inout) :: x(:), y(:)
-        integer, intent(inout) :: ifile
         !!AUXILIAR
         logical :: ex
         integer :: lcabecera, ij,stat,ltotales,inpnumber
@@ -361,7 +405,7 @@ module mtmodules
                   
         !!Checking the file
         
-        if (len(trim(inpfile)).gt.30) then
+        if (len(trim(inpfile)).gt.100) then
            write(*,*) 'The name of the input file is too long'
            write(*,*) 'Breaking the code...'
            write(*,*)
@@ -372,7 +416,7 @@ module mtmodules
 
         if (.not.ex) then
            write(*,*)
-           write(*,*) trim(inpfile), 'does not exists. Breaking the program...'
+           write(*,*) trim(inpfile), ' does not exists. Breaking the program...'
            write(*,*)
            stop
         else
@@ -385,8 +429,6 @@ module mtmodules
         write(*,*) ''
         write(*,*) 'Reading the columns ', colx, ' and ', coly
         write(*,*)
-
-        open(newunit=ifile,file=trim(outfile)) !! open the output file
 
   !! READ THE FILE
 
@@ -429,7 +471,6 @@ module mtmodules
              x(ij)=xy(colx)
              y(ij)=xy(coly)
           End Do
-          close(ifile)
 
         
         return
