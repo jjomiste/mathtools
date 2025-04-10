@@ -23,7 +23,8 @@ program wigner_transform
   real(8) :: dx, dp
   real(8), allocatable :: x_vals(:), p_vals(:), W(:, :)
   integer :: i, j
-
+  
+  
   inquire(file='salida_wigner.dat',exist=ex)
   open(newunit=outexp, file='salida_wigner.dat')
   

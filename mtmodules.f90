@@ -339,28 +339,26 @@ module mtmodules
         !! inpfile: name of the input file
         !! colx: column for the x values
         !! coly: column for the y values
+        !! outfile: output file to store the result (wigner, fft, dft)
         !! OUTPUT:
         !! x: array with the x values starting in label 1
         !! y: array with the y values starting in label 1
-        !! outfile: output file to store the result (wigner, fft, dft)
         !! ifile: label of the outfile.
         implicit none
         !!INPUT
-        character(len=50), intent(in) :: inpfile
+        character(len=*), intent(in) :: inpfile
         integer, intent(in) :: colx, coly
+        character(len=*), intent(in) :: outfile
         !!OUTPUT
         real(8), allocatable, intent(inout) :: x(:), y(:)
-        character(len=50), intent(inout) :: outfile
         integer, intent(inout) :: ifile
         !!AUXILIAR
         logical :: ex
-        integer :: lcabecera, ij,stat,ltotales
+        integer :: lcabecera, ij,stat,ltotales,inpnumber
         character(1) :: auxch
         integer :: ik
         real(8), allocatable :: xy(:)
-          
-
-        
+                  
         !!Checking the file
         
         if (len(trim(inpfile)).gt.30) then
@@ -377,6 +375,8 @@ module mtmodules
            write(*,*) trim(inpfile), 'does not exists. Breaking the program...'
            write(*,*)
            stop
+        else
+           open(newunit=inpnumber,file=trim(inpfile))
         end if
 
         !!Starting the reading
@@ -394,22 +394,23 @@ module mtmodules
         !! initialize the counters for the heading
         lcabecera=-33
         ij=0
-  
+
+
         Do     
-           read(ifile,*,iostat=stat) auxch
+           read(inpnumber,*,iostat=stat) auxch
            if (auxch.ne.'#'.and.lcabecera.lt.0) lcabecera=ij !! heading lines     
            if (stat.ne.0) then !! total lines
               stat=0
               ltotales=ij
               exit
            end if
-           ij=ij+1 !! set the lines     
+           ij=ij+1 !! set the lines
         End Do
   
-        rewind(ifile) !! BEGINNING OF THE FILE
+        rewind(inpnumber) !! BEGINNING OF THE FILE
 
           Do ij=1,lcabecera
-             read(ifile,*) auxch
+             read(inpnumber,*) auxch
           End Do
 
   !!READ THE SIGNAL FROM THE FILE
@@ -423,7 +424,7 @@ module mtmodules
 
           
           Do ij=1,ltotales-lcabecera
-             read(ifile,*) xy(1:max(colx,coly))
+             read(inpnumber,*) xy(1:max(colx,coly))
              ik=ik+1 !! number of valid points
              x(ij)=xy(colx)
              y(ij)=xy(coly)
