@@ -296,9 +296,9 @@ subroutine compute_dft(t, f, omega, F_re, F_im)
   F_im=zero
   omega=zero
   
-  ! Loop over frequencies
+  ! Loop over angular frequencies
   do k = 1, n
-    omega(k) = two * pi * dble(k - 1) / (n * dt)
+    omega(k) = 2*dble(k - 1) / (n * dt)
 
     ! Sum over time samples
     do j = 1, n
