@@ -1,10 +1,8 @@
 module mtmodules
   implicit none
-  real(8), parameter :: two=2.0d0, zero=0.0d0, pi=acos(-1.0d0), half=dble(0.5d0)
+  real(8), parameter :: one=1.0d0, two=2.0d0, zero=0.0d0, pi=acos(-1.0d0), half=dble(0.5d0)
 
-  public::   two, zero,pi
-
-
+  public::   one,two, zero,pi
   
   contains
 
@@ -376,10 +374,26 @@ end subroutine compute_dft
         return
       end subroutine wignert
 
+      !! HAMMING WINDOW FUNCTION
 
-!! DISCRETE FOURIER TRANSFORM
+      function  hannf(xx,mean,duration)
+        !!INPUT
+        !! x: real variable
+        !! mean: peak of the window
+        !! duration: duration of the window function. The window is defined from mean-duration/2 to mean+duration/2
+        real(8), intent(in) :: xx, mean,duration
+        real(8) :: hannf
 
+        hannf=zero
 
+        if (xx.lt.mean-duration*half.or.xx.gt.mean+duration*half) return !! if it is out of the window is zero
+
+        !!if it is in the interval
+        hannf=one+cos(two*pi*(xx-mean)/duration)
+        hannf=half*hannf
+
+      end function hannf
+      
       !! READING TWO LISTS OF NUMBERS
 
       subroutine reading2list(inpfile,colx,coly,x,y)
@@ -454,7 +468,8 @@ end subroutine compute_dft
           Do ij=1,lcabecera
              read(inpnumber,*) auxch
           End Do
-
+          
+          
   !!READ THE SIGNAL FROM THE FILE
           allocate(x(1:ltotales-lcabecera))  !! time points
           allocate(y(1:ltotales-lcabecera))  !! time-dependent function
