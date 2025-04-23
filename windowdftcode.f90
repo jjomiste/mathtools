@@ -3,10 +3,14 @@ program windowdft
   implicit none
 
   character(len=100):: infile
-  integer:: ifile,xcol,ycol,outfile, dftfile
+  integer:: ifile,xcol,ycol,outfile, wdftfile
   real(8), allocatable :: x(:), y(:), omega(:), fre(:), fim(:)
+  real(8), allocatable :: ywindow(:)
   integer:: ij, jk, ik
-  real(8) :: windl
+  real(8) :: windl!! duration of the window
+  real(8) :: peak !! peak of the Hann window
+  real(8) :: xx !! variable
+  character(len=50) :: outfilechar
   
   call getarg(1,infile) !! get the input file name
 
@@ -30,16 +34,38 @@ program windowdft
   end if  
   
   write(*,*) ''
-  
+
+  !!READING THE FILE
   call reading2list(infile,xcol,ycol,x,y)
 
-  call compute_dft(x, y, omega, fre, fim)
+  !!COMPUTING THE Windowed-DFT
 
-  open(newunit=dftfile, file='salida_dft_file')
+  !! Open the new file
+  write(outfilechar,'(A17,E9.3)') 'salida_wdft_file_',windl
 
-  do ij=1,size(omega)
-     write(dftfile,*) omega(ij)/(two*pi),omega(ij), fre(ij),fim(ij),fre(ij)**2.+fim(ij)**2.
-  end do
+  open(newunit=wdftfile, file=trim(outfilechar))
+
+  write(wdftfile,*) '#Duration of the file: ', windl
+  write(wdftfile,*) ''
+  
+  !! LOOP IN THE TIME POINTS
+  Do ij=1,size(x)
+
+     peak=x(ij)
+     !! Obtaining the time signal times the window
+     call hannarray(x,y,peak,windl,ywindow)
+
+     !! Compute the Fourier Transform of the tiem signal times the window
+     call compute_wdft(x, ywindow,peak-windl*half,peak+windl*half, omega, fre, fim)
+
+     do jk=1,size(omega)
+        write(wdftfile,*) x(ij), omega(jk)/(two*pi),omega(jk), fre(jk),fim(jk),fre(jk)**2.+fim(jk)**2.
+     end do
+
+     write(wdftfile,*) ''
+  End Do
+ 
+
 
   
   

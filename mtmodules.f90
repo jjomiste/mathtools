@@ -312,7 +312,61 @@ subroutine compute_dft(t, f, omega, F_re, F_im)
   F_im=F_im*dt/sqrt(two*pi)
   
 end subroutine compute_dft
-      
+
+!!! WINDOW DISCRETE FOURIER TRANSFORM
+
+!!! DISCRETE FOURIER TRANSFORM
+
+subroutine compute_wdft(t, f, tini,tend,omega, F_re, F_im)
+  implicit none
+  ! Input
+  real(8), allocatable, intent(in) :: t(:), f(:)
+  real(8), intent(in) :: tini, tend !! initial and final time of the window
+  !! NOTE: in this version "tini" is not used in the subroutine
+  
+  ! Output
+  real(8),allocatable, intent(inout) :: F_re(:), F_im(:),omega(:)
+
+  ! Internal variables
+  integer :: k, j,n
+  real(8) :: dt, arg
+
+  if (allocated(F_re)) deallocate(F_re)
+  if (allocated(F_im)) deallocate(F_im)
+  if (allocated(omega)) deallocate(omega)
+
+  ! Assume uniform spacing
+  dt = t(2) - t(1)
+
+  n=size(t)
+
+  allocate(F_re(1:n))
+  allocate(F_im(1:n))
+  allocate(omega(1:n/2))
+  F_re=zero
+  F_im=zero
+  omega=zero
+  
+  ! Loop over angular frequencies
+  do k = 1, n/2
+    omega(k) = 2*pi*dble(k - 1) / dble(n * dt)
+
+    ! Sum over time samples
+    do j = 1, n
+      arg = omega(k) * t(j)
+      F_re(k) = F_re(k) + f(j) * cos(arg)
+      F_im(k) = F_im(k) - f(j) * sin(arg)
+      !! exit the loop if the time end of the window is reached
+      if (t(j).gt.tend) exit
+   end do
+  end do
+
+  !! Include the differential and the 1/sqrt(2pi)
+  
+  F_re=F_re*dt/sqrt(two*pi)
+  F_im=F_im*dt/sqrt(two*pi)
+  
+end subroutine compute_wdft
       
 !!! WIGNER TRANSFORM SUBROUTINES
 
@@ -374,8 +428,31 @@ end subroutine compute_dft
         return
       end subroutine wignert
 
-      !! HAMMING WINDOW FUNCTION
+      !! HANN WINDOW FUNCTION
 
+      !! Multiply an array times the Hann Window
+
+      subroutine hannarray(xx,yy,mean, duration,yywindow)
+        !!INPUT
+        real(8), allocatable, intent(in) :: xx(:), yy(:) !! independent and dependent variable
+        real(8), intent(in) :: mean, duration !! mean and duration of the window
+        !!OUTPUT
+        real(8), allocatable,intent(inout) :: yywindow(:) !! signal times the window
+        !! AUXILIAR
+        integer :: ij, jk, ik
+        
+        if (.not.allocated(yywindow)) allocate(yywindow,source=yy)
+
+        yywindow=zero
+
+        Do ij=1,size(yy)
+           yywindow(ij)=yy(ij)*hannf(xx(ij),mean,duration)
+        End Do
+        
+        return        
+      end subroutine hannarray
+      
+      !! compute the Hann Window Function at a given point
       function  hannf(xx,mean,duration)
         !!INPUT
         !! x: real variable
