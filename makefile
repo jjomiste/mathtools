@@ -1,6 +1,8 @@
 .SUFFIXES : .o .f90
 .f90.o: ;  gfortran -c $<
 
+all:: fft wigner dft windowdft dir
+
 fft:: mtmodules.o fftcode.o
 	gfortran  mtmodules.o fftcode.o -o $@
 
@@ -25,4 +27,3 @@ clean::
 	rm -f *.mod
 	rm -rf bin
 
-all:: fft wigner dft windowdft dir
